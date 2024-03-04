@@ -1,0 +1,52 @@
+.widget-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    flex-grow: 1;
+}
+
+.map-container {
+    height: 240px;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.controls-container {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.map-type-line {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.map-type-label, .interval-title {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.interval-line {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.map-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}

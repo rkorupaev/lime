@@ -1,0 +1,30 @@
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background-color: #fff;
+  color: #475569;
+  border:  1px solid #cecece;
+  border-radius: 10px;
+
+  h2 {
+    margin-top: 0;
+  }
+}
+
+
+.buttons__container {
+  display: flex;
+  margin-top: 30px;
+
+  button {
+    width: 100%;
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}

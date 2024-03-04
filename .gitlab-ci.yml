@@ -1,0 +1,157 @@
+stages:
+  - sec
+  - build:static
+  - build:image
+  - deploy
+
+variables:
+  DEV_BRANCH: "develop"
+  NODE_VERSION_IMAGE: 18-alpine3.16
+
+
+include:
+  - project: 'dev/ci-templates'
+    file: '/security/frontend-sca.yml'
+
+sca:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $DEV_BRANCH
+
+
+
+
+build:static:
+  image: node:${NODE_VERSION_IMAGE}
+  stage: build:static
+  rules:
+    - if: $CI_COMMIT_TAG 
+    - if: $CI_COMMIT_BRANCH == $DEV_BRANCH
+    - if: $CI_COMMIT_BRANCH != $DEV_BRANCH
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+  cache:
+    key: npm
+    policy: pull-push
+    paths:
+      - .npm/
+  artifacts:
+    name: "$CI_COMMIT_REF_NAME"
+    paths:
+      - ./dist
+    expire_in: 1 hour
+  script:
+    - |
+      if [[ $CI_COMMIT_TAG ]]; then
+        echo "VITE_APP_VERSION= ${CI_COMMIT_TAG}" > .env
+      else
+        echo "VITE_APP_VERSION= ${CI_COMMIT_SHORT_SHA}" > .env
+      fi
+    - npm ci --cache .npm/ --legacy-peer-deps
+    - CI="false" npm run build
+
+
+build:image:dev:
+  image: docker:20.10.14-git
+  stage: build:image
+  rules:
+    - if: $CI_COMMIT_BRANCH == $DEV_BRANCH
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH != $DEV_BRANCH
+      when: manual
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+  needs: ["build:static"]
+  dependencies: ["build:static"]
+  tags:
+    - docker_in_docker
+  before_script:
+    - docker login ${CI_REGISTRY} -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
+  script:
+    - docker build --rm --no-cache -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:dev -f docker/Dockerfile .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:dev
+
+
+.deploy:base:
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $DEV_BRANCH
+    - if: $CI_COMMIT_BRANCH != $DEV_BRANCH
+      when: manual
+
+  before_script:
+    - export GLOBAL_PROJECT_NAME=$(echo $CI_PROJECT_NAMESPACE | cut -d'/' -f2)
+  script:
+    - sed -e 's|archive.ubuntu.com|apt-cacher.lan:3142/archive.ubuntu.com|' /etc/apt/sources.list -i
+    - apt-get update && apt-get install -y ssh gnupg2
+    - chmod og= ${ID_RSA}
+    - | 
+      ssh -i ${ID_RSA} -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} "
+      docker login ${CI_REGISTRY} -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} && cd ${GLOBAL_PROJECT_NAME} && docker compose pull && docker compose up -d && docker image prune -f && docker container prune -f"
+
+
+
+deploy:dev:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_DEV
+    DEPLOY_USER: $DEPLOY_USER_DEV
+    DEPLOY_SERVER: $DEPLOY_SERVER_DEV
+  
+deploy:test1:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.185"
+
+deploy:test2:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.186"
+
+deploy:test3:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.187"
+
+deploy:test4:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.188"
+
+deploy:test5:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.189"
+
+deploy:test6:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.195"
+
+deploy:test7:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.196"
+
+deploy:test8:
+  extends: .deploy:base
+  variables:
+    ID_RSA: $ID_RSA_TEST
+    DEPLOY_USER: root
+    DEPLOY_SERVER: "192.168.30.198"

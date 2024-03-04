@@ -1,0 +1,42 @@
+.widget-container2 {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    flex-grow: 1;
+    height: calc(100vh - 64px);
+}
+
+.map-container2 {
+    min-height: 100%;
+    width: calc(100vw - 540px);
+    flex-shrink: 0;
+}
+
+.controls-container2 {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 40px;
+    margin-right: 16px;
+    margin-top: 16px;
+}
+
+.map-type-line2 {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.map-type-label2, .interval-title2 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.interval-line2 {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}

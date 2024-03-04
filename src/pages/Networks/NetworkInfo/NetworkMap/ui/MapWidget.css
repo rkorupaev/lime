@@ -1,0 +1,13 @@
+.widget-container3 {
+    display: flex;
+    align-items: flex-start;
+    gap: 32px;
+    flex-grow: 1;
+    height: calc(100vh - 64px);
+}
+
+.map-container3 {
+    min-height: 100%;
+    width: calc(100vw - 540px);
+    flex-shrink: 0;
+}
